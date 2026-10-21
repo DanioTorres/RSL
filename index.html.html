@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RSL Dashboard</title>
+<style>
+:root{--bg:#f6f7f6;--card:#fff;--tx:#1b2420;--mu:#6b7770;--bd:#dfe4e1;--ac:#0f7b5c;--bar:#e6ebe8;--neg:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--card:#1b2220;--tx:#e8eeeb;--mu:#8f9c95;--bd:#2c3631;--ac:#2fb98d;--bar:#2a3430;--neg:#e5675a}}
+:root[data-theme="dark"]{--bg:#121715;--card:#1b2220;--tx:#e8eeeb;--mu:#8f9c95;--bd:#2c3631;--ac:#2fb98d;--bar:#2a3430;--neg:#e5675a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:1200px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{font-size:20px;margin:0;font-weight:600}.sub{color:var(--mu);font-size:12px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 12px}
+button{cursor:pointer}button:hover{border-color:var(--ac)}
+.tabs{display:flex;gap:8px;margin:18px 0 12px;flex-wrap:wrap}
+.tabs button{border-radius:8px;padding:8px 14px}.tabs button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.kpi,.top div{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px 14px}
+.kpi small{display:block;color:var(--mu);font-size:11px}.kpi b{font-size:20px;font-weight:500}
+.top{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.top div{padding:10px 12px;position:relative;overflow:hidden}
+.top small{color:var(--mu);font-size:11px;display:block}.top b{font-size:16px;display:block}
+.top .r{color:var(--ac);font-size:12px;font-weight:500}
+.top i{position:absolute;left:0;bottom:0;height:3px;background:var(--ac)}
+details{margin-bottom:12px;color:var(--mu)}summary{cursor:pointer}
+.sec{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-width:420px}
+.sec div{display:grid;grid-template-columns:110px 1fr 50px;gap:8px;align-items:center;font-size:12px;color:var(--tx)}
+.ctl{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.tw{background:var(--card);border:1px solid var(--bd);border-radius:8px;overflow:auto;max-height:560px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{position:sticky;top:0;background:var(--card);text-align:left;font-weight:400;color:var(--mu);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--bd);cursor:pointer;white-space:nowrap}
+td{padding:7px 12px;border-bottom:1px solid var(--bd)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.pos{color:var(--ac)}.neg{color:var(--neg)}
+.bar{display:inline-block;width:60px;height:4px;background:var(--bar);border-radius:2px;margin-left:10px;vertical-align:middle;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac)}.bar i.n{background:var(--neg)}
+.foot{display:flex;justify-content:space-between;color:var(--mu);font-size:12px;margin-top:8px;flex-wrap:wrap;gap:6px}
+dialog{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;max-width:560px;width:92%}
+textarea{width:100%;height:180px;font:12px monospace;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:8px}
+.row{display:flex;gap:8px;margin-top:10px;justify-content:flex-end;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+ <div><h1>RSL Dashboard</h1><div class="sub" id="stand"></div></div>
+ <div style="display:flex;gap:8px"><button id="imp">⬆ Daten importieren</button><button id="th">Dunkel</button></div>
+</header>
+<div class="tabs" id="tabs"></div>
+<div class="kpis" id="kpis"></div>
+<div class="top" id="top"></div>
+<details><summary>Sektorverteilung anzeigen (Anteil mit RSL &gt; 1)</summary><div class="sec" id="sec"></div></details>
+<div class="ctl">
+ <input id="q" placeholder="Ticker exakt suchen, z.B. MU, NVDA">
+ <select id="sf"></select>
+ <select id="so"><option value="rank">Sortierung: Rank</option><option value="tk">Sortierung: Ticker</option><option value="sec">Sortierung: Sektor</option><option value="low">Sortierung: schwächster RSL</option></select>
+</div>
+<div class="tw"><table><thead><tr><th>Rank</th><th>Ticker</th><th>Sektor</th><th style="text-align:right">Close</th><th style="text-align:right">SMA26</th><th>RSL</th></tr></thead><tbody id="tb"></tbody></table></div>
+<div class="foot"><span>RSL = Wochenschlusskurs / SMA(26) auf Wochenbasis. Der RSL ist währungsunabhängig.</span><span id="cnt"></span></div>
+</div>
+
+<dialog id="dlg">
+ <b>Daten importieren</b>
+ <p class="sub">CSV mit Spalten: <code>Ticker;Sektor;Close;SMA26;Markt</code> (Markt optional, z.B. „S&amp;P 500“ oder „STOXX Europe 600“). Trennzeichen ; , oder Tab, Dezimalkomma ist ok. Der RSL wird automatisch berechnet.</p>
+ <textarea id="ta" placeholder="MRNA;Healthcare;218,01;97,00;S&P 500"></textarea>
+ <div class="row"><input type="file" id="fi" accept=".csv,.txt"><button id="rs">Demo-Daten</button><button id="cl">Abbrechen</button><button id="ok" style="background:var(--ac);color:#fff;border-color:var(--ac)">Übernehmen</button></div>
+</dialog>
+
+<script>
+var DEMO="MRNA;Healthcare;218.01;97.00\nMPC;Energy;478.07;319.62\nVEEV;Healthcare;310.36;214.40\nVLO;Energy;444.71;312.27\nPSX;Energy;293.17;212.03\nPTC;Technology;192.98;140.24\nILMN;Healthcare;262.54;193.99\nP;Technology;124.01;91.81\nACN;Technology;229.68;171.00\nRVTY;Healthcare;152.64;116.61\nCRL;Healthcare;300.15;234.09\nAPA;Energy;49.15;39.09\nIT;Technology;205.35;164.69\nTMO;Healthcare;690.00;553.95\nMTD;Healthcare;1622.29;1314.82\nA;Healthcare;172.97;140.31\nXOM;Energy;118.40;112.10\nAAPL;Technology;231.50;224.80\nKO;Consumer Staples;68.20;69.90\nNKE;Consumer Discretionary;72.10;81.40\nPFE;Healthcare;24.80;26.10\nINTC;Technology;21.30;23.40";
+var D=[],mk="Alle",TH=null;
+var cols=["#9b59b6","#d35400","#16a085","#2980b9","#c0392b","#7f8c8d","#b8860b","#8e44ad"];
+var cc={};function col(s){if(!cc[s])cc[s]=cols[Object.keys(cc).length%cols.length];return cc[s]}
+function num(v,d){v=String(v).trim();if(d!==","){v=v.replace(/\./g,"x").replace(",",".").replace(/x/g,".")==v?v:v}
+ if(v.indexOf(",")>-1&&v.indexOf(".")>-1)v=v.replace(/\./g,"").replace(",",".");else v=v.replace(",",".");return parseFloat(v)}
+function parse(t){var L=t.split(/\r?\n/).filter(function(x){return x.trim()});if(!L.length)return[];
+ var d=L[0].indexOf(";")>-1?";":L[0].indexOf("\t")>-1?"\t":",";var out=[];
+ L.forEach(function(l){var c=l.split(d);if(c.length<4)return;var cl=num(c[2],d),sm=num(c[3],d);if(!(cl>0&&sm>0))return;
+  out.push({tk:c[0].trim().toUpperCase(),sec:c[1].trim()||"–",cl:cl,sma:sm,rsl:cl/sm,mk:(c[4]||"S&P 500").trim()})});return out}
+function load(t){D=parse(t);D.sort(function(a,b){return b.rsl-a.rsl});
+ var m={};D.forEach(function(x){m[x.mk]=1});if(mk!=="Alle"&&!m[mk])mk="Alle";render()}
+function f2(n){return n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function f4(n){return n.toFixed(4)}
+function cur(){return D.filter(function(x){return mk==="Alle"||x.mk===mk})}
+function render(){
+ var ms=[];D.forEach(function(x){if(ms.indexOf(x.mk)<0)ms.push(x.mk)});
+ var T=document.getElementById("tabs");T.innerHTML="";
+ ms.concat(ms.length>1?["Alle"]:[]).forEach(function(m){var n=m==="Alle"?D.length:D.filter(function(x){return x.mk===m}).length;
+  var b=document.createElement("button");b.textContent=m+" ("+n+")";if(m===mk)b.className="on";b.onclick=function(){mk=m;render()};T.appendChild(b)});
+ var C=cur();var R=C.map(function(x,i){var o=Object.assign({},x);o.rank=i+1;return o});
+ var up=R.filter(function(x){return x.rsl>1}).length,top=R[0];
+ var S={};R.forEach(function(x){var s=S[x.sec]||(S[x.sec]={n:0,u:0,s:0});s.n++;s.s+=x.rsl;if(x.rsl>1)s.u++});
+ var best=Object.keys(S).sort(function(a,b){return S[b].s/S[b].n-S[a].s/S[a].n})[0];
+ document.getElementById("kpis").innerHTML=
+  '<div class="kpi"><small>Aktien gesamt</small><b>'+R.length+'</b></div>'+
+  '<div class="kpi"><small>RSL &gt; 1</small><b class="pos">'+up+'</b> <small style="display:inline">('+(R.length?Math.round(up/R.length*100):0)+' %)</small></div>'+
+  '<div class="kpi"><small>Stärkstes RSL</small><b>'+(top?f2(top.rsl)+' <small style="display:inline">'+top.tk+'</small>':"–")+'</b></div>'+
+  '<div class="kpi"><small>Stärkster Sektor (Ø RSL)</small><b style="font-size:15px">'+(best?best+" ("+(S[best].s/S[best].n).toFixed(3)+")":"–")+'</b></div>';
+ document.getElementById("top").innerHTML=R.slice(0,10).map(function(x){var w=Math.min(100,Math.max(0,(x.rsl-1)/(top.rsl-1||1)*100));
+  return '<div><small>#'+x.rank+'</small><b>'+x.tk+'</b><small>'+x.sec+'</small><span class="r">RSL '+f4(x.rsl)+'</span><i style="width:'+w+'%"></i></div>'}).join("");
+ document.getElementById("sec").innerHTML=Object.keys(S).sort(function(a,b){return S[b].u/S[b].n-S[a].u/S[a].n}).map(function(s){var p=Math.round(S[s].u/S[s].n*100);
+  return '<div><span><span class="dot" style="background:'+col(s)+'"></span>'+s+'</span><span class="bar" style="width:100%;margin:0"><i style="width:'+p+'%"></i></span><span>'+p+' %</span></div>'}).join("");
+ var sf=document.getElementById("sf"),pv=sf.value;sf.innerHTML='<option value="">Alle Sektoren</option>'+Object.keys(S).sort().map(function(s){return '<option>'+s+'</option>'}).join("");sf.value=pv&&S[pv]?pv:"";
+ window.R=R;table();
+ document.getElementById("stand").textContent="Datenstand: "+new Date().toLocaleDateString("de-DE")+" · "+D.length+" Aktien geladen"}
+function table(){
+ var q=document.getElementById("q").value.trim().toUpperCase(),s=document.getElementById("sf").value,o=document.getElementById("so").value;
+ var A=(window.R||[]).filter(function(x){return(!q||x.tk===q)&&(!s||x.sec===s)});
+ if(o==="tk")A.sort(function(a,b){return a.tk<b.tk?-1:1});if(o==="sec")A.sort(function(a,b){return a.sec<b.sec?-1:1});if(o==="low")A.sort(function(a,b){return a.rsl-b.rsl});
+ var mx=window.R&&window.R.length?window.R[0].rsl:2;
+ document.getElementById("tb").innerHTML=A.map(function(x){var p=x.rsl>=1,w=Math.min(100,Math.abs(x.rsl-1)/(mx-1||1)*100);
+  return '<tr><td>'+x.rank+'</td><td>'+x.tk+'</td><td><span class="dot" style="background:'+col(x.sec)+'"></span>'+x.sec+'</td><td style="text-align:right">'+f2(x.cl)+'</td><td style="text-align:right;color:var(--mu)">'+f2(x.sma)+'</td><td class="'+(p?"pos":"neg")+'">'+f4(x.rsl)+'<span class="bar"><i class="'+(p?"":"n")+'" style="width:'+w+'%"></i></span></td></tr>'}).join("");
+ document.getElementById("cnt").textContent=A.length+" von "+(window.R?window.R.length:0)+" Aktien"}
+["q","sf","so"].forEach(function(i){document.getElementById(i).oninput=table});
+var dlg=document.getElementById("dlg"),ta=document.getElementById("ta");
+document.getElementById("imp").onclick=function(){dlg.showModal()};
+document.getElementById("cl").onclick=function(){dlg.close()};
+document.getElementById("rs").onclick=function(){ta.value=DEMO};
+document.getElementById("fi").onchange=function(e){var r=new FileReader();r.onload=function(){ta.value=r.result};r.readAsText(e.target.files[0])};
+document.getElementById("ok").onclick=function(){if(ta.value.trim()){load(ta.value);try{localStorage.setItem("rsl_data",ta.value)}catch(e){}}dlg.close()};
+document.getElementById("th").onclick=function(){var d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+ d.dataset.theme=dark?"light":"dark";this.textContent=dark?"Dunkel":"Hell"};
+var saved=null;try{saved=localStorage.getItem("rsl_data")}catch(e){}
+load(saved||DEMO);
+</script>
+</body>
+</html>
