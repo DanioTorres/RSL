@@ -118,7 +118,7 @@ function render(){
   return '<div><span><span class="dot" style="background:'+col(s)+'"></span>'+s+'</span><span class="bar" style="width:100%;margin:0"><i style="width:'+p+'%"></i></span><span>'+p+' %</span></div>'}).join("");
  var sf=document.getElementById("sf"),pv=sf.value;sf.innerHTML='<option value="">Alle Sektoren</option>'+Object.keys(S).sort().map(function(s){return '<option>'+s+'</option>'}).join("");sf.value=pv&&S[pv]?pv:"";
  window.R=R;table();
- document.getElementById("stand").textContent=(UPD?"Datenstand: "+UPD:"Demo-/Importdaten")+" · "+D.length+" Aktien"}
+ document.getElementById("stand").textContent=(UPD&&CUR?"Stand: "+fd(nxt(CUR))+", 10:00 Uhr · "+UPD:UPD?"Datenstand: "+UPD:"Demo-/Importdaten")+" · "+D.length+" Aktien"}
 function table(){
  var q=document.getElementById("q").value.trim().toUpperCase(),s=document.getElementById("sf").value,o=document.getElementById("so").value;
  var A=(window.R||[]).filter(function(x){return(!q||x.tk===q)&&(!s||x.sec===s)});
@@ -136,13 +136,15 @@ document.getElementById("fi").onchange=function(e){var r=new FileReader();r.onlo
 document.getElementById("ok").onclick=function(){if(ta.value.trim()){load(ta.value);try{localStorage.setItem("rsl_data",ta.value)}catch(e){}}dlg.close()};
 document.getElementById("th").onclick=function(){var d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
  d.dataset.theme=dark?"light":"dark";this.textContent=dark?"Dunkel":"Hell"};
-var UPD=null;
+var UPD=null,CUR=null;
+function fd(t){return t.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"})}
+function nxt(d){var t=new Date(d+"T12:00:00");t.setDate(t.getDate()+1);if(t.getDay()==6)t.setDate(t.getDate()+2);else if(t.getDay()==0)t.setDate(t.getDate()+1);return t}
 function fallback(){var saved=null;try{saved=localStorage.getItem("rsl_data")}catch(e){}load(saved||DEMO)}
 function setData(j){UPD=j.updated;D=j.rows.map(function(x){return{tk:x.tk,sec:x.sec,cl:x.cl,sma:x.sma,rsl:x.cl/x.sma,mk:x.mk||"S&P 500"}});D.sort(function(a,b){return b.rsl-a.rsl});render()}
-function loadDate(d){fetch("data/"+d+".json?"+Date.now()).then(function(r){if(!r.ok)throw 0;return r.json()}).then(setData).catch(fallback)}
+function loadDate(d){CUR=d;fetch("data/"+d+".json?"+Date.now()).then(function(r){if(!r.ok)throw 0;return r.json()}).then(setData).catch(fallback)}
 document.getElementById("dsel").onchange=function(){loadDate(this.value)};
 fetch("data/index.json?"+Date.now()).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
- var sel=document.getElementById("dsel");sel.innerHTML=j.dates.map(function(d,i){var t=new Date(d+"T12:00:00").toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"});return '<option value="'+d+'">'+t+(i?'':' (aktuell)')+'</option>'}).join("");
+ var sel=document.getElementById("dsel");sel.innerHTML=j.dates.map(function(d,i){return '<option value="'+d+'">'+fd(nxt(d))+' – 10:00 Uhr (Schluss '+fd(new Date(d+"T12:00:00"))+')'+(i?'':' · aktuell')+'</option>'}).join("");
  sel.style.display="";loadDate(j.dates[0])}).catch(fallback);
 </script>
 </body>
