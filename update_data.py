@@ -1,6 +1,7 @@
-import io, json, datetime
+import io, json, os, datetime
 import pandas as pd, requests, yfinance as yf
 
+TAGE = 40  # so viele Handelstage (Stichtage) bleiben abrufbar
 SEC = {"Health Care": "Healthcare", "Information Technology": "Technology"}
 
 def sp500():
@@ -16,26 +17,46 @@ def main():
     frames = []
     for i in range(0, len(tickers), 100):
         chunk = tickers[i:i + 100]
-        df = yf.download(chunk, period="3y", interval="1wk", auto_adjust=False,
+        df = yf.download(chunk, period="2y", interval="1d", auto_adjust=False,
                          progress=False, threads=True)["Close"]
         if isinstance(df, pd.Series):
             df = df.to_frame(chunk[0])
         frames.append(df)
     px = pd.concat(frames, axis=1)
-    rows = []
-    for tk in tickers:
-        if tk not in px:
+    px.index = pd.to_datetime(px.index).tz_localize(None)
+
+    # Laeuft die US-Boerse vielleicht noch (Mo-Fr vor 21:15 UTC)? Dann den heutigen Tag weglassen.
+    now = datetime.datetime.utcnow()
+    if now.weekday() < 5 and now.hour * 60 + now.minute < 21 * 60 + 15:
+        px = px[px.index < pd.Timestamp(now.date())]
+    # Nur echte Handelstage (an Feiertagen fehlen fast alle Kurse)
+    px = px[px.notna().sum(axis=1) >= 300]
+    days = list(px.index[-TAGE:])
+
+    os.makedirs("data", exist_ok=True)
+    for old in os.listdir("data"):
+        os.remove(os.path.join("data", old))
+    names = []
+    for d in days:
+        sub = px[px.index <= d]
+        weekly = sub.resample("W-FRI").last().tail(26)  # Wochenschluesse, letzte Woche = Kurs am Stichtag
+        sma = weekly.mean()
+        ok = (weekly.notna().sum() == 26) & sub.iloc[-1].notna()
+        close = sub.iloc[-1]
+        rows = [{"tk": tk, "sec": sectors[tk], "cl": round(float(close[tk]), 2),
+                 "sma": round(float(sma[tk]), 2), "mk": "S&P 500"}
+                for tk in tickers if tk in ok.index and ok[tk]]
+        if len(rows) < 300:
+            print("Zu wenige Aktien am", d.date(), "- uebersprungen")
             continue
-        s = px[tk].dropna()
-        if len(s) < 27:
-            continue
-        rows.append({"tk": tk, "sec": sectors[tk], "cl": round(float(s.iloc[-1]), 2),
-                     "sma": round(float(s.tail(26).mean()), 2), "mk": "S&P 500"})
-    if len(rows) < 300:
-        raise SystemExit(f"Nur {len(rows)} Aktien geladen - data.json wird nicht ueberschrieben")
-    out = {"updated": datetime.date.today().strftime("%d.%m.%Y"), "rows": rows}
-    with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False)
-    print(len(rows), "Aktien gespeichert")
+        name = d.strftime("%Y-%m-%d")
+        with open(f"data/{name}.json", "w", encoding="utf-8") as f:
+            json.dump({"updated": "Handelsschluss " + d.strftime("%d.%m.%Y"), "rows": rows}, f, ensure_ascii=False)
+        names.append(name)
+    if not names:
+        raise SystemExit("Keine Daten erzeugt")
+    with open("data/index.json", "w", encoding="utf-8") as f:
+        json.dump({"dates": names[::-1]}, f)
+    print(len(names), "Stichtage gespeichert, neuester:", names[-1])
 
 main()
