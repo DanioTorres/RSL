@@ -9,11 +9,11 @@ def sp500():
                      headers={"User-Agent": "Mozilla/5.0 rsl-dashboard"}, timeout=30)
     r.raise_for_status()
     t = pd.read_html(io.StringIO(r.text))[0]
-    return {s.replace(".", "-"): SEC.get(g, g) for s, g in zip(t["Symbol"], t["GICS Sector"])}
+    return {s.replace(".", "-"): (SEC.get(g, g), str(n)) for s, g, n in zip(t["Symbol"], t["GICS Sector"], t["Security"])}
 
 def main():
-    sectors = sp500()
-    tickers = list(sectors)
+    info = sp500()
+    tickers = list(info)
     frames = []
     for i in range(0, len(tickers), 100):
         chunk = tickers[i:i + 100]
@@ -42,16 +42,32 @@ def main():
         weekly = sub.resample("W-FRI").last().tail(26)  # Wochenschluesse, letzte Woche = Kurs am Stichtag
         sma = weekly.mean()
         ok = (weekly.notna().sum() == 26) & sub.iloc[-1].notna()
-        close = sub.iloc[-1]
-        rows = [{"tk": tk, "sec": sectors[tk], "cl": round(float(close[tk]), 2),
-                 "sma": round(float(sma[tk]), 2), "mk": "S&P 500"}
-                for tk in tickers if tk in ok.index and ok[tk]]
+        last26 = sub.tail(26)                            # zweite Basis: 26 Handelstage
+        sma26 = last26.mean()
+        ok26 = last26.notna().sum() == 26
+        filled = sub.ffill()
+        close = filled.iloc[-1]
+        perf = {}
+        for key, n in (("d1", 1), ("w1", 5), ("m1", 21)):
+            perf[key] = (close / filled.iloc[-1 - n] - 1) * 100 if len(filled) > n else None
+        rows = []
+        for tk in tickers:
+            if tk not in ok.index or not ok[tk]:
+                continue
+            row = {"tk": tk, "n": info[tk][1], "sec": info[tk][0], "cl": round(float(close[tk]), 2),
+                   "sma": round(float(sma[tk]), 2), "mk": "S&P 500"}
+            if ok26[tk]:
+                row["s26"] = round(float(sma26[tk]), 2)
+            for key, ser in perf.items():
+                if ser is not None and pd.notna(ser[tk]):
+                    row[key] = round(float(ser[tk]), 2)
+            rows.append(row)
         if len(rows) < 300:
             print("Zu wenige Aktien am", d.date(), "- uebersprungen")
             continue
         name = d.strftime("%Y-%m-%d")
         with open(f"data/{name}.json", "w", encoding="utf-8") as f:
-            json.dump({"updated": "Handelsschluss " + d.strftime("%d.%m.%Y"), "rows": rows}, f, ensure_ascii=False)
+            json.dump({"updated": "Handelsschluss " + d.strftime("%d.%m.%Y"), "rows": rows}, f, ensure_ascii=False, separators=(",", ":"))
         names.append(name)
     if not names:
         raise SystemExit("Keine Daten erzeugt")
