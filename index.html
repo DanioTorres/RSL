@@ -43,7 +43,12 @@ table{border-collapse:collapse;width:100%;min-width:1100px}
 th{position:sticky;top:0;background:var(--pa);text-align:left;font-weight:600;color:var(--mu);font-size:12px;padding:12px 14px;border-bottom:1px solid var(--bd);white-space:nowrap}
 td{padding:9px 12px;border-bottom:1px solid var(--bd);white-space:nowrap}
 tbody tr:hover td{background:var(--bar)}
-td:nth-child(1){color:var(--mu);width:56px}td:nth-child(3){font-weight:700}.nm{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mu)}.mu{color:var(--mu)}td:nth-child(2){white-space:nowrap;font-size:12px;font-weight:600}tr.h1 td{background:rgba(0,168,132,.07)}tr.h2 td{background:rgba(0,168,132,.17)}tr.h2 td:first-child{box-shadow:inset 3px 0 0 var(--up)}.warn{color:var(--dn);font-weight:600;margin:-8px 0 12px}.warn:empty{display:none}
+td:nth-child(1){color:var(--mu);width:56px}td:nth-child(3){font-weight:700}.nm{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mu)}.mu{color:var(--mu)}td:nth-child(2){white-space:nowrap;font-size:12px;font-weight:600}tr.h1 td{background:rgba(0,168,132,.07)}tr.h2 td{background:rgba(0,168,132,.17)}tr.h2 td:first-child{box-shadow:inset 3px 0 0 var(--up)}.ue{color:var(--dn);font-weight:700;cursor:help;margin-left:4px;font-size:12px}td a{color:inherit;text-decoration:none}td a:hover{text-decoration:underline;color:var(--ac)}.chk{display:flex;align-items:center;gap:6px;color:var(--mu);font-size:13px;padding:0 6px}.chk input{padding:0}.plan{background:var(--pa);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);padding:14px 18px;margin-bottom:16px}
+.ph{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.ph label{display:flex;gap:6px;align-items:center;color:var(--mu);font-size:13px}.ph select{padding:4px 10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--bd);border-radius:12px;padding:8px 12px;min-width:132px}
+.chip em{font-style:normal;color:var(--ac);font-weight:800;margin-right:6px}.chip small{display:block;color:var(--mu);font-size:11px;margin-top:2px}.chip>span{font-size:12px;display:block}
+.chip.held{background:var(--bar)}.pk{color:var(--ac);margin-left:4px}.pn{color:var(--mu);font-size:12px;margin-top:8px}
+.warn{color:var(--dn);font-weight:600;margin:-8px 0 12px}.warn:empty{display:none}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
 .pos{color:var(--up)}.neg{color:var(--dn)}.rs{font-weight:700;display:inline-block;width:64px}
 .g{display:inline-block;position:relative;width:120px;height:10px;background:var(--bar);border-radius:5px;vertical-align:middle;overflow:hidden}
@@ -66,14 +71,15 @@ textarea{width:100%;height:180px;font:12px monospace;background:var(--bg);color:
 <div class="kpis" id="kpis"></div>
 <div class="top" id="top"></div>
 <div id="warn" class="warn"></div>
+<div class="plan"><div class="ph"><b>Portfolio-Vorschlag ★</b><label>Anzahl Aktien <select id="pn"><option>5</option><option>7</option><option>10</option><option>15</option></select></label><label>Mein Depot <input id="pdep" placeholder="Ticker, z.B. MRNA, ACN, XOM" style="width:250px"></label><label><input type="checkbox" id="pue" checked> ⚠ Übernahme-Verdacht ausschließen</label><span id="prule" class="sub"></span></div><div class="chips" id="pl"></div><div class="pn" id="pnote"></div></div>
 <details><summary>Sektorverteilung anzeigen (Anteil mit RSL &gt; 1)</summary><div class="sec" id="sec"></div></details>
 <div class="ctl">
  <input id="q" placeholder="Ticker exakt suchen, z.B. MU, NVDA">
  <select id="sf"></select>
- <select id="so"><option value="rank">Sortierung: Rank</option><option value="r26">Sortierung: RSL 26 Tage</option><option value="tk">Sortierung: Ticker</option><option value="sec">Sortierung: Sektor</option><option value="low">Sortierung: schwächster RSL</option></select>
+ <label class="chk"><input type="checkbox" id="hue"> ⚠ Verdachtsfälle ausblenden</label><select id="so"><option value="rank">Sortierung: Rank</option><option value="r26">Sortierung: RSL 26 Tage</option><option value="tk">Sortierung: Ticker</option><option value="sec">Sortierung: Sektor</option><option value="low">Sortierung: schwächster RSL</option></select>
 </div>
 <div class="tw"><table><thead><tr><th>Rank</th><th title="Rangveränderung zur Vorwoche">Δ Woche</th><th>Ticker</th><th>Name</th><th>Sektor</th><th style="text-align:right">Close</th><th style="text-align:right">SMA26</th><th>RSL (26 Wochen)</th><th>RSL 26 Tage</th><th style="text-align:right">1T</th><th style="text-align:right">1W</th><th style="text-align:right">1M</th></tr></thead><tbody id="tb"></tbody></table></div>
-<div class="foot"><span>RSL = Kurs / SMA26 (Wochenbasis). Markierung: dunkelgrün = Top 5 in beiden Basen (26 Wochen und 26 Tage), hellgrün = Top 5 in einer Basis. Δ Woche = Rang gegenüber der Vorwoche.</span><span id="cnt"></span></div>
+<div class="foot"><span>RSL = Kurs / SMA26 (Wochenbasis). ⚠ = möglicher Übernahmefall (Kurssprung, danach auffällig ruhig) – Chart prüfen; die Erkennung ist eine Faustregel. Markierung: dunkelgrün = Top 5 in beiden Basen (26 Wochen und 26 Tage), hellgrün = Top 5 in einer Basis. Δ Woche = Rang gegenüber der Vorwoche. ★ = Portfolio-Vorschlag, ● = Position in deinem Depot.</span><span id="cnt"></span></div>
 </div>
 
 <dialog id="dlg">
@@ -109,7 +115,9 @@ function render(){
  var t5=R.slice(0,5).map(function(x){return x.tk}),t5d=R.filter(function(x){return x.r26}).sort(function(a,b){return b.r26-a.r26}).slice(0,5).map(function(x){return x.tk});
  R.forEach(function(x){var a=t5.indexOf(x.tk)>-1,b=t5d.indexOf(x.tk)>-1;x.hl=a&&b?2:(a||b)?1:0;x.dr=PREVD.length?(pm[x.tk]?pm[x.tk]-x.rank:"neu"):null});
  var sc={};R.slice(0,10).forEach(function(x){sc[x.sec]=(sc[x.sec]||0)+1});var wk=Object.keys(sc).sort(function(a,b){return sc[b]-sc[a]})[0];
- document.getElementById("warn").textContent=wk&&sc[wk]>=4?"⚠ "+sc[wk]+" der Top 10 sind "+wk+" (Klumpenrisiko)":"";
+ var wl=[];if(wk&&sc[wk]>=4)wl.push("⚠ "+sc[wk]+" der Top 10 sind "+wk+" (Klumpenrisiko)");
+ var ut=R.slice(0,10).filter(function(x){return x.ue}).map(function(x){return x.tk});if(ut.length)wl.push("⚠ Möglicher Übernahmefall in den Top 10: "+ut.join(", ")+" – vor dem Kauf den Chart prüfen");
+ document.getElementById("warn").innerHTML=wl.map(function(t){return"<div>"+t+"</div>"}).join("");
  var up=R.filter(function(x){return x.rsl>1}).length,top=R[0];
  var S={};R.forEach(function(x){var s=S[x.sec]||(S[x.sec]={n:0,u:0,s:0});s.n++;s.s+=x.rsl;if(x.rsl>1)s.u++});
  var best=Object.keys(S).sort(function(a,b){return S[b].s/S[b].n-S[a].s/S[a].n})[0];
@@ -119,23 +127,25 @@ function render(){
   '<div class="kpi"><small>Stärkstes RSL</small><b>'+(top?f2(top.rsl)+' <small style="display:inline">'+top.tk+'</small>':"–")+'</b></div>'+
   '<div class="kpi"><small>Stärkster Sektor (Ø RSL)</small><b style="font-size:15px">'+(best?best+" ("+(S[best].s/S[best].n).toFixed(3)+")":"–")+'</b></div>';
  document.getElementById("top").innerHTML=R.slice(0,10).map(function(x){var w=Math.min(100,Math.max(0,(x.rsl-1)/(top.rsl-1||1)*100));
-  return '<div><em>'+x.rank+'</em><b>'+x.tk+'</b><small>'+x.sec+'</small><span class="r">'+f4(x.rsl)+'</span><i style="width:'+w+'%"></i></div>'}).join("");
+  return '<div><em>'+x.rank+'</em><b>'+x.tk+ue(x)+'</b><small>'+x.sec+'</small><span class="r">'+f4(x.rsl)+'</span><i style="width:'+w+'%"></i></div>'}).join("");
  document.getElementById("sec").innerHTML=Object.keys(S).sort(function(a,b){return S[b].u/S[b].n-S[a].u/S[a].n}).map(function(s){var p=Math.round(S[s].u/S[s].n*100);
   return '<div><span><span class="dot" style="background:'+col(s)+'"></span>'+s+'</span><span class="bar" style="width:100%;margin:0"><i style="width:'+p+'%"></i></span><span>'+p+' %</span></div>'}).join("");
  var sf=document.getElementById("sf"),pv=sf.value;sf.innerHTML='<option value="">Alle Sektoren</option>'+Object.keys(S).sort().map(function(s){return '<option>'+s+'</option>'}).join("");sf.value=pv&&S[pv]?pv:"";
- window.R=R;table();
+ plan(R);window.R=R;table();
  document.getElementById("stand").textContent=(UPD&&CUR?"Stand: "+fd(nxt(CUR))+", 10:00 Uhr · "+UPD:UPD?"Datenstand: "+UPD:"Demo-/Importdaten")+" · "+D.length+" Aktien"}
 function table(){
  var q=document.getElementById("q").value.trim().toUpperCase(),s=document.getElementById("sf").value,o=document.getElementById("so").value;
- var A=(window.R||[]).filter(function(x){return(!q||x.tk===q)&&(!s||x.sec===s)});
+ var A=(window.R||[]).filter(function(x){return(!q||x.tk===q)&&(!s||x.sec===s)&&!(document.getElementById("hue").checked&&x.ue)});
  if(o==="r26")A.sort(function(a,b){return(b.r26||0)-(a.r26||0)});if(o==="tk")A.sort(function(a,b){return a.tk<b.tk?-1:1});if(o==="sec")A.sort(function(a,b){return a.sec<b.sec?-1:1});if(o==="low")A.sort(function(a,b){return a.rsl-b.rsl});
  var mx=window.R&&window.R.length?window.R[0].rsl:2;
  function dr(v){return v===null||v===undefined?"":v==="neu"?'<span class="mu">neu</span>':v>0?'<span class="pos">▲ '+v+'</span>':v<0?'<span class="neg">▼ '+(-v)+'</span>':'<span class="mu">–</span>'}
  function pc(v){return v==null?'<td style="text-align:right" class="mu">–</td>':'<td class="'+(v>=0?"pos":"neg")+'" style="text-align:right">'+(v>0?"+":"")+v.toFixed(2).replace(".",",")+' %</td>'}
  document.getElementById("tb").innerHTML=A.map(function(x){var p=x.rsl>=1,w=Math.min(100,Math.abs(x.rsl-1)/(mx-1||1)*100);
-  return '<tr class="h'+x.hl+'"><td>'+x.rank+'</td><td>'+dr(x.dr)+'</td><td>'+x.tk+'</td><td class="nm" title="'+(x.nm||"").replace(/"/g,"")+'">'+(x.nm||"")+'</td><td><span class="dot" style="background:'+col(x.sec)+'"></span>'+x.sec+'</td><td style="text-align:right">'+f2(x.cl)+'</td><td style="text-align:right;color:var(--mu)">'+f2(x.sma)+'</td><td class="'+(p?"pos":"neg")+'"><span class="rs">'+f4(x.rsl)+'</span><span class="g"><i class="'+(p?"":"n")+'" style="width:'+(w/2)+'%"></i></span></td><td>'+(x.r26?f4(x.r26):"–")+'</td>'+pc(x.d1)+pc(x.w1)+pc(x.m1)+'</tr>'}).join("");
+  return '<tr class="h'+x.hl+'"><td>'+x.rank+(x.hold?' <span class="pk" title="Im Depot">●</span>':x.sel?' <span class="pk" title="Im Portfolio-Vorschlag">★</span>':'')+'</td><td>'+dr(x.dr)+'</td><td><a href="https://www.tradingview.com/chart/?symbol='+x.tk.replace("-",".")+'" target="_blank" rel="noopener" title="Chart in TradingView öffnen">'+x.tk+'</a>'+ue(x)+'</td><td class="nm" title="'+(x.nm||"").replace(/"/g,"")+'">'+(x.nm||"")+'</td><td><span class="dot" style="background:'+col(x.sec)+'"></span>'+x.sec+'</td><td style="text-align:right">'+f2(x.cl)+'</td><td style="text-align:right;color:var(--mu)">'+f2(x.sma)+'</td><td class="'+(p?"pos":"neg")+'"><span class="rs">'+f4(x.rsl)+'</span><span class="g"><i class="'+(p?"":"n")+'" style="width:'+(w/2)+'%"></i></span></td><td>'+(x.r26?f4(x.r26):"–")+'</td>'+pc(x.d1)+pc(x.w1)+pc(x.m1)+'</tr>'}).join("");
  document.getElementById("cnt").textContent=A.length+" von "+(window.R?window.R.length:0)+" Aktien"}
-["q","sf","so"].forEach(function(i){document.getElementById(i).oninput=table});
+["q","sf","so","hue"].forEach(function(i){document.getElementById(i).oninput=table});["pn","pue"].forEach(function(i){document.getElementById(i).onchange=render});
+try{document.getElementById("pdep").value=localStorage.getItem("rsl_depot")||""}catch(e){}
+document.getElementById("pdep").onchange=function(){try{localStorage.setItem("rsl_depot",this.value)}catch(e){}render()};
 var dlg=document.getElementById("dlg"),ta=document.getElementById("ta");
 document.getElementById("imp").onclick=function(){dlg.showModal()};
 document.getElementById("cl").onclick=function(){dlg.close()};
@@ -145,10 +155,32 @@ document.getElementById("ok").onclick=function(){if(ta.value.trim()){load(ta.val
 document.getElementById("th").onclick=function(){var d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
  d.dataset.theme=dark?"light":"dark";this.textContent=dark?"Dunkel":"Hell"};
 var UPD=null,CUR=null,IDX=[],PREVD=[];
+function ueText(x){var u=x.ue;return "Möglicher Übernahmefall: Kurssprung +"+String(u[0]).replace(".",",")+" % am "+u[1].slice(8,10)+"."+u[1].slice(5,7)+"., seitdem ungewöhnlich ruhig (Ø "+String(u[2]).replace(".",",")+" % Tagesschwankung). Bitte den Chart prüfen."}
+function ue(x){return x.ue?' <span class="ue" title="'+ueText(x)+'">⚠</span>':""}
+function held(){return document.getElementById("pdep").value.split(/[\s,;]+/).map(function(t){return t.trim().toUpperCase().replace(".","-")}).filter(function(t,i,a){return t&&a.indexOf(t)===i})}
+function plan(R){var n=+document.getElementById("pn").value,ex=document.getElementById("pue").checked,H=held();
+ var minS=n<=5?3:Math.ceil(n/2),cap=n<=5?n:2,sel=[],add=[],cnt={},dist=0,sk=[],unk=[];
+ R.forEach(function(x){x.sel=false;x.hold=H.indexOf(x.tk)>-1});
+ H.forEach(function(t){var x=R.find(function(r){return r.tk===t})||D.find(function(r){return r.tk===t});
+  sel.push({tk:t,sec:x?x.sec:null,rank:x&&x.rank?x.rank:null,rsl:x?x.rsl:null,ue:x?x.ue:null,held:true});
+  if(!x){unk.push(t);return}var c=cnt[x.sec]||0;if(!c)dist++;cnt[x.sec]=c+1});
+ var warn=[];if(n>5)Object.keys(cnt).forEach(function(k){if(cnt[k]>cap)warn.push("Dein Depot hat "+cnt[k]+"× "+k+" (Regel: max. "+cap+")")});
+ if(n<=5&&dist+Math.max(0,n-sel.length)<minS)warn.push("Mit deinem Depot sind "+minS+" Sektoren nicht mehr erreichbar");
+ R.forEach(function(x){if(sel.length>=n||x.hold)return;var why=null;
+  if(x.rsl<=1)why="RSL ≤ 1";else if(ex&&x.ue)why="⚠ Übernahme?";
+  else{var c=cnt[x.sec]||0,nd=dist+(c?0:1);if(c>=cap)why=x.sec+" bereits "+cap+"×";else if(nd+(n-sel.length-1)<minS)why="Sektor-Mindestzahl";
+   if(!why){sel.push(x);add.push(x);x.sel=true;cnt[x.sec]=c+1;dist=nd;return}}
+  sk.push({x:x,why:why})});
+ var last=add.length?add[add.length-1].rank:0;sk=sk.filter(function(k){return k.x.rank<last});
+ document.getElementById("prule").textContent=n<=5?"Regel: mindestens 3 verschiedene Sektoren":"Regel: höchstens 2 Aktien pro Sektor";
+ var i=0;document.getElementById("pl").innerHTML=sel.map(function(x){var sc=x.sec?'<span class="dot" style="background:'+col(x.sec)+'"></span>'+x.sec:"nicht im Datensatz";
+  return'<div class="chip'+(x.held?' held':'')+'"><em>'+(x.held?"●":++i)+'</em><b>'+x.tk+ue(x)+'</b><span>'+sc+'</span><small>'+(x.held?"im Depot":"neu")+(x.rank?" · Rang "+x.rank:"")+(x.rsl?" · RSL "+f4(x.rsl):"")+'</small></div>'}).join("");
+ var sm=Object.keys(cnt).map(function(k){return k+" "+cnt[k]+"×"}).join(" · ");
+ document.getElementById("pnote").textContent=warn.join(" · ")+(warn.length?" · ":"")+(sel.length>=n&&!add.length&&H.length>=n?"Dein Depot ist bereits voll ("+H.length+" von "+n+"). ":sel.length<n?"Nur "+sel.length+" von "+n+" Plätzen lassen sich regelkonform füllen. ":"")+"Sektoren: "+(sm||"–")+(unk.length?" · ohne Sektor (nicht im Datensatz): "+unk.join(", "):"")+(sk.length?" · Übersprungen: "+sk.map(function(k){return k.x.tk+" ("+k.why+")"}).join(", "):"")}
 function fd(t){return t.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"})}
 function nxt(d){var t=new Date(d+"T12:00:00");t.setDate(t.getDate()+1);if(t.getDay()==6)t.setDate(t.getDate()+2);else if(t.getDay()==0)t.setDate(t.getDate()+1);return t}
 function fallback(){PREVD=[];var saved=null;try{saved=localStorage.getItem("rsl_data")}catch(e){}load(saved||DEMO)}
-function mapRows(j){return j.rows.map(function(x){return{tk:x.tk,nm:x.n||"",sec:x.sec,cl:x.cl,sma:x.sma,rsl:x.cl/x.sma,r26:x.s26?x.cl/x.s26:null,d1:x.d1,w1:x.w1,m1:x.m1,mk:x.mk||"S&P 500"}}).sort(function(a,b){return b.rsl-a.rsl})}
+function mapRows(j){return j.rows.map(function(x){return{tk:x.tk,nm:x.n||"",sec:x.sec,cl:x.cl,sma:x.sma,rsl:x.cl/x.sma,r26:x.s26?x.cl/x.s26:null,d1:x.d1,w1:x.w1,m1:x.m1,ue:x.ue||null,mk:x.mk||"S&P 500"}}).sort(function(a,b){return b.rsl-a.rsl})}
 function getj(d){return fetch("data/"+d+".json?"+Date.now()).then(function(r){if(!r.ok)throw 0;return r.json()})}
 function loadDate(d){CUR=d;var t=new Date(d+"T12:00:00");t.setDate(t.getDate()-7);var tg=t.toISOString().slice(0,10);var pd=IDX.find(function(x){return x<=tg});
  Promise.all([getj(d),pd?getj(pd).catch(function(){return null}):Promise.resolve(null)]).then(function(a){UPD=a[0].updated;PREVD=a[1]?mapRows(a[1]):[];D=mapRows(a[0]);render()}).catch(fallback)}
