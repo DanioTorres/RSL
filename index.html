@@ -6,10 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RSL Dashboard</title>
 <style>
-:root{--bg:#f6f5fb;--tabbg:rgba(255,255,255,.6);--bgg:linear-gradient(135deg,#ffe6f0 0%,#efe8ff 45%,#d9f3ff 100%);--pa:#ffffff;--tx:#1b1530;--mu:#6e6a85;--bd:#e5e2f0;--ac:#7c3aed;--ac2:#f43f5e;--up:#00a884;--dn:#f43f5e;--bar:#ece9f6;--ink:#1b1530;--r:18px;--sh:0 1px 2px rgba(27,21,48,.04),0 8px 24px rgba(27,21,48,.06);
+:root{--bg:#f3f5f8;--tabbg:rgba(255,255,255,.6);--bgg:none;--pa:#ffffff;--tx:#1a2230;--mu:#64718a;--bd:#dfe4ec;--ac:#1d5fd6;--ac2:#3b82f6;--up:#00a884;--dn:#e0482b;--bar:#e8edf3;--ink:#1a2230;--r:18px;--sh:0 1px 2px rgba(20,32,56,.04),0 8px 24px rgba(20,32,56,.06);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0b14;--tabbg:rgba(255,255,255,.08);--bgg:linear-gradient(135deg,#2a1148 0%,#14193a 55%,#0b2a36 100%);--pa:#171421;--tx:#ece9f7;--mu:#9a95b3;--bd:#2a2538;--ac:#a78bfa;--ac2:#fb7185;--up:#34d399;--dn:#fb7185;--bar:#241f33;--ink:#ece9f7;--sh:0 8px 28px rgba(0,0,0,.35)}}
-:root[data-theme="dark"]{--bg:#0d0b14;--tabbg:rgba(255,255,255,.08);--bgg:linear-gradient(135deg,#2a1148 0%,#14193a 55%,#0b2a36 100%);--pa:#171421;--tx:#ece9f7;--mu:#9a95b3;--bd:#2a2538;--ac:#a78bfa;--ac2:#fb7185;--up:#34d399;--dn:#fb7185;--bar:#241f33;--ink:#ece9f7;--sh:0 8px 28px rgba(0,0,0,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141b;--tabbg:rgba(255,255,255,.08);--bgg:none;--pa:#161c25;--tx:#e6ebf3;--mu:#8a97ab;--bd:#263040;--ac:#6ea8ff;--ac2:#8ab8ff;--up:#34d399;--dn:#ff7a66;--bar:#202938;--ink:#e6ebf3;--sh:0 8px 28px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#0f141b;--tabbg:rgba(255,255,255,.08);--bgg:none;--pa:#161c25;--tx:#e6ebf3;--mu:#8a97ab;--bd:#263040;--ac:#6ea8ff;--ac2:#8ab8ff;--up:#34d399;--dn:#ff7a66;--bar:#202938;--ink:#e6ebf3;--sh:0 8px 28px rgba(0,0,0,.35)}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;background:var(--bg);background-image:var(--bgg);background-attachment:fixed;color:var(--tx);font:14px/1.45 "Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums}
 .w{max-width:1500px;margin:0 auto;padding:28px 18px 48px}
@@ -22,7 +22,7 @@ button{cursor:pointer}button:hover,input:focus,select:focus{border-color:var(--a
 button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .tabs{display:inline-flex;gap:0;margin:22px 0 16px;background:var(--tabbg);backdrop-filter:blur(6px);border-radius:999px;padding:4px;flex-wrap:wrap}
 .tabs button{border:0;background:transparent;color:var(--mu);font-weight:600}
-.tabs button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.35)}
+.tabs button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 4px 14px rgba(29,95,214,.3)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));background:var(--pa);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:18px;overflow:hidden}
 .kpi{padding:16px 20px;border-right:1px solid var(--bd)}.kpi:last-child{border-right:0}
 .kpi small{display:block;color:var(--mu);font-size:12px;margin-bottom:4px}.kpi b{font-size:28px;font-weight:700;letter-spacing:-.02em}
